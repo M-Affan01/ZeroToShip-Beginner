@@ -1,64 +1,116 @@
-# Phase 1 — Component Data Model
+# ZeroToShip — Beginner Track
 
-This repository contains the Phase 1 deliverables for the Component data model exercise.
+A terminal-based hardware inventory management system with session-based authentication.
 
-## Overview
+## Project Overview
 
-Phase 1 focuses on defining the physical structure of object layouts and simple
-serialization logic. No server logic, CLI, or menus are required — just a clean
-in-memory model and manual verification via a small script.
+This project implements a **headless local validation engine and credential manager** for tracking hardware components. It provides secure session management and access control to prevent unauthorized modifications to hardware status fields.
 
-## Files
+---
 
-- `models/component.py` — `Component` class with `id` (int), `name` (str), `owner` (str),
-  and `status` (defaults to "Available"). Includes `to_dict()` and `from_dict()`.
-- `manual_test.py` — basic script that instantiates a `Component`, serializes it to a
-  dictionary, deserializes back to an object, and prints outputs to the console.
+## Phase 1 — Component Data Model
 
-## What to Submit (required)
+Defines the physical structure of hardware component objects with serialization support.
 
-- The core data model file: `models/component.py`.
-- Class properties mapping: `id`, `name`, `owner`, `status`.
-- Serialization methods: `to_dict()` and `from_dict()`.
-- A manual testing script: `manual_test.py` demonstrating instantiation and
-  dictionary conversion.
+### Files
+- `models/component.py` — `Component` class with `id` (int), `name` (str), `owner` (str), and `status` (defaults to "Available")
+- `manual_test.py` — Demo script for instantiation and dictionary conversion
 
-You are welcome to add extras (tests, validation, additional helpers), but the
-items above are necessary to submit.
+---
 
-## How to Run the Manual Test
+## Phase 2 — Authentication & Session Management
 
-From the project root (where `manual_test.py` lives), run:
+A lightweight user session log system that tracks actively logged-in terminal users and enforces access gatekeepers.
+
+### Core Components
+
+#### `services/auth.py`
+
+| Class/Function | Description |
+|----------------|-------------|
+| `User` | Student profile model (student_id, name, email) |
+| `Session` | Session token with timeout validation |
+| `SessionManager` | Tracks active sessions, handles login/logout |
+| `validate_session()` | Gatekeeper requiring active session |
+| `can_modify_component()` | Ownership verification gatekeeper |
+| `require_session` | Decorator for protecting functions |
+
+### Key Features
+
+**Authentication Flow:**
+1. Register user → `session_mgr.register_user(student_id, name, email)`
+2. Login → `session_mgr.login(student_id)` returns session token
+3. Validate → `validate_session(session_mgr, session_id)` ensures active session
+4. Logout → `session_mgr.logout(session_id)` destroys session
+
+**Access Gatekeepers:**
+- `validate_session()` — Raises `PermissionError` if no active session exists
+- `can_modify_component()` — Returns `True` only if logged-in user owns the component
+- `require_session` — Decorator that blocks function execution without valid session
+
+### How to Run
 
 ```bash
-python manual_test.py
+py manual_test.py
 ```
 
-You should see the original object printed, the dictionary representation, and
-the object recreated from the dictionary.
+**Expected Output:**
+```
+Original Object:
+ID: 1, Name: Arduino Uno, Owner: Muhammad Affan, Status: Available
 
-## Git Submission (example)
+Dictionary:
+{'id': 1, 'name': 'Arduino Uno', 'owner': 'Muhammad Affan', 'status': 'Available'}
 
-This example shows a minimal sequence you can use to prepare and push Phase 1.
-Adjust remote and branch names as needed.
+Object Created from Dictionary:
+ID: 1, Name: Arduino Uno, Owner: Muhammad Affan, Status: Available
+
+==================================================
+PHASE 2: Authentication & Session Management
+==================================================
+
+Registered User: Student ID: STU001, Name: Muhammad Affan, Email: affan@example.com
+Session Created: 215f3f58c17a3395...
+Session Validated: Muhammad Affan
+Can modify component: True
+Logged out successfully
+Post-logout access attempt: Invalid or expired session. Please login again.
+```
+
+---
+
+## Project Structure
+
+```
+Beginner/
+├── models/
+│   └── component.py          # Component data model
+├── services/
+│   ├── __init__.py
+│   └── auth.py               # Session management & gatekeepers
+├── manual_test.py            # Demo & testing script
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Git Commands
 
 ```bash
-git init
-echo "__pycache__/" >> .gitignore
-echo "gear.json" >> .gitignore
-git add .gitignore models/component.py manual_test.py README.md
-git commit -m "Phase 1 Complete: Component model, serialization, and tests"
-git branch -M main
-# add your remote, e.g.:
-# git remote add origin git@github.com:yourname/yourrepo.git
-# git push -u origin main
+git add services/auth.py services/__init__.py manual_test.py README.md
+git commit -m "Phase 2 Complete: Build terminal user state tracking sessions and add state modification access gatekeepers"
+git push origin main
 ```
+
+---
 
 ## Notes
 
-- The `Component` model is intentionally simple to make Phase 1 focused and
-  reviewable. Keep names and types stable; follow-up phases will add behavior
-  and persistence.
+- **Headless Architecture** — No GUI; operates entirely via terminal/CLI
+- **Session Timeout** — Sessions expire after 1 hour (3600 seconds) by default
+- **Ownership Model** — Users can only modify components they own
+- **No External Dependencies** — Pure Python standard library implementation
 
 Warm regards,
 
