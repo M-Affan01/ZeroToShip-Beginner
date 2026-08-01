@@ -173,6 +173,87 @@ loaded = load_gear_data()
 
 ---
 
+## Phase 4 — Static Terminal Display & Status Highlights
+
+A presentation-layer terminal screen module built entirely on hardcoded dummy arrays and mock properties — no operational state is hooked up yet.
+
+### Core Components
+
+#### `services/cli_display.py`
+
+| Class/Function | Description |
+|----------------|-------------|
+| `clear_screen()` | Clears the console using the platform-appropriate command |
+| `render_table()` | Draws aligned ASCII grid tables using `+`, `-`, and `|` markers |
+| `render_menu()` | Draws a bordered vertical menu centered around a title |
+| `render_title_banner()` | Highlights a title inside an ASCII frame |
+| `render_box()` | Word-wraps long text inside a bordered frame |
+| `render_error()` | Renders a failure message inside an error frame |
+| `colorize_status()` | Wraps `[Available]` in bright green escape chars, `[Borrowed]` in red |
+| `render_status_ledger()` | Loops over mock components printing color-coded status tags |
+| `render_components_table()` | Full grid table of the hardcoded inventory |
+| `render_dashboard()` | Composes the complete static home screen |
+| `show_home_screen()` | Clears the console and displays the dashboard |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `DisplayError` | Base exception for the display layer |
+| `DisplayValidationError` | Invalid input (also a `ValueError` for compatibility) |
+| `ComponentDataError` | Malformed component record (missing keys, wrong types) |
+| `RenderError` | A screen fails to build from otherwise valid input |
+
+### Error Handling & Input Validation
+
+Every public rendering function validates its inputs before drawing:
+
+- **Headers / Options / Rows** — must be non-empty lists of valid types
+- **Title / Text / Status** — must be non-empty strings (None and whitespace rejected)
+- **Padding / Width** — must be non-negative integers (bool rejected)
+- **Summary flag** — must be a real boolean
+- **Component records** — required keys (`id`, `name`, `owner`, `status`) enforced
+- **Internal grid primitives** — cell counts and widths checked on every draw
+
+Failures are contained so a bad call can never crash the session:
+
+- `render_table()` validates column counts against header length
+- `render_status_ledger()` / `render_components_table()` validate every record
+- `render_dashboard()` wraps sub-screen failures in `RenderError`
+- `show_home_screen()` catches any display failure and prints it inside an error frame via `render_error()`
+
+### Key Features
+
+**Terminal Interface Grid:**
+- Screen-clearing function for both Windows (`cls`) and POSIX (`clear`)
+- Uniform ASCII box borders (`+`, `-`, `|`) used for menus, banners, and tables
+- Column widths auto-derived so every grid line stays perfectly aligned
+
+**Status Tag Highlights:**
+- `[Available]` → bright green ANSI escape characters (`\033[92m`)
+- `[Borrowed]` → red highlight wrapper (`\033[91m`)
+- `[Maintenance]` → yellow, `[Retired]` → gray
+- ANSI-aware width calculation keeps columns aligned despite color codes
+
+**Mock Data:**
+- `MOCK_COMPONENTS` — hardcoded list of inventory dicts
+- `MOCK_MENU` — hardcoded main menu options
+- `STATUS_STYLES` — hardcoded status → color mapping
+
+### How to Run
+
+```bash
+py services/cli_display.py
+```
+
+Runs the full static home screen. To see it embedded with earlier phases:
+
+```bash
+py manual_test.py
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -183,7 +264,8 @@ Beginner/
 │   ├── __init__.py
 │   ├── auth.py               # Session management & gatekeepers
 │   ├── registry_core.py      # State transition logic & validation
-│   └── storage.py            # JSON persistence layer
+│   ├── storage.py            # JSON persistence layer
+│   └── cli_display.py        # Static terminal display & status highlights
 ├── manual_test.py            # Demo & testing script
 ├── .gitignore
 └── README.md
@@ -204,6 +286,13 @@ git push origin main
 ```bash
 git add services/registry_core.py services/storage.py README.md
 git commit -m "Phase 3 Complete: Deploy hardware state transition triggers and build fault-tolerant JSON storage pipelines"
+git push origin main
+```
+
+**Phase 4:**
+```bash
+git add services/cli_display.py README.md manual_test.py
+git commit -m "Phase 4 Complete: Complete static terminal display views, ASCII layout frames, and color-coded status highlights"
 git push origin main
 ```
 
