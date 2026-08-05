@@ -339,9 +339,9 @@ py app.py
 
 ---
 
-## 📌 Final Submission Information
+## Final Submission Information
 
-### 📌 Project Information
+### Project Information
 
 **Project Description:**
 ZeroToShip is a terminal-based hardware inventory management system designed for educational institutions, labs, and maker spaces to track and manage hardware components like microcontrollers, sensors, motors, and development boards. It provides secure session-based authentication, ownership-based access control, state transition enforcement, and persistent JSON storage — all implemented using pure Python standard library.
@@ -368,7 +368,7 @@ A modular Python application with five integrated phases:
 
 ---
 
-### 💻 Development Details & Deliverables
+### Development Details & Deliverables
 
 **Technologies Used:**
 | Technology | Purpose |
@@ -390,7 +390,7 @@ https://github.com/M-Affan01/ZeroToShip-Beginner.git
 
 ---
 
-### 📝 Reflection & Future Scope
+### Reflection & Future Scope
 
 **Biggest Challenge Faced:**
 The most difficult part was integrating all five phases into a cohesive application while maintaining data integrity and security. Specific challenges included:
