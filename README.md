@@ -339,6 +339,21 @@ py app.py
 
 ---
 
+## Output Screenshots
+
+| # | Screenshot |
+|---|------------|
+| 1 | ![Login Menu](Output/1.png) |
+| 2 | ![Register User](Output/2.png) |
+| 3 | ![Main Menu](Output/3.png) |
+| 4 | ![View Components](Output/4.png) |
+| 5 | ![Add Component](Output/5.png) |
+| 6 | ![Edit Component](Output/6.png) |
+| 7 | ![Borrow Component](Output/7.png) |
+| 8 | ![Storage Status](Output/8.png) |
+
+---
+
 ## Project Structure
 
 ```
@@ -351,6 +366,15 @@ Beginner/
 │   ├── registry_core.py      # State transition logic & validation
 │   ├── storage.py            # JSON persistence layer
 │   └── cli_display.py        # Terminal display & status highlights
+├── Output/                   # Screenshots of application
+│   ├── 1.png
+│   ├── 2.png
+│   ├── 3.png
+│   ├── 4.png
+│   ├── 5.png
+│   ├── 6.png
+│   ├── 7.png
+│   └── 8.png
 ├── app.py                    # Main integrated application
 ├── manual_test.py            # Demo & testing script
 ├── gear.json                 # Data persistence file (auto-created)
