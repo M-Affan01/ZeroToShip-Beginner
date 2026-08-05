@@ -254,6 +254,91 @@ py manual_test.py
 
 ---
 
+## Phase 5 — Final System Integration
+
+The complete integrated application connecting all phases into a single, functional system.
+
+### Core Components
+
+#### `app.py`
+
+| Feature | Description |
+|---------|-------------|
+| Main Controller Loop | Continuous while loop rendering dynamic menus |
+| Session Integration | Login/register with Phase 2 auth tokens |
+| Dynamic Data Loading | Loads components from JSON storage on startup |
+| Real-time Updates | All modifications saved back to JSON file |
+| Execution Metrics | Tracks commands, additions, borrows, errors |
+| Ownership Enforcement | Only owners can modify their components |
+
+### Menu Options
+
+| Option | Function | Auth Required |
+|--------|----------|---------------|
+| 1. View All Components | Display full inventory table | No |
+| 2. Add Component | Create new hardware entry | Yes |
+| 3. Borrow Component | Change status to Borrowed | Yes |
+| 4. Return Component | Change status to Available | Yes |
+| 5. Mark Maintenance | Change status to Maintenance | Yes |
+| 6. Retire Component | Change status to Retired (terminal) | Yes |
+| 7. Edit Component | Update name or owner | Yes |
+| 8. Delete Component | Remove from inventory | Yes |
+| 9. Search Components | Find by name or owner | No |
+| 10. Storage Status | View file metadata | No |
+| 11. View Metrics | Display execution statistics | No |
+| 12. Exit | Save data and quit | No |
+
+### How to Run
+
+```bash
+py app.py
+```
+
+### Integration Flow
+
+1. **Startup**: App loads existing data from `gear.json`
+2. **Login**: User authenticates with student ID (or continues as guest)
+3. **Menu Loop**: Dynamic menu renders with all available options
+4. **Operations**: User selects actions that modify the registry
+5. **Persistence**: All changes automatically save to JSON
+6. **Exit**: Data persists between sessions
+
+### Metrics Tracked
+
+- Commands executed
+- Components added/borrowed/returned/deleted
+- Searches performed
+- Errors encountered
+
+### Error Handling & Input Validation
+
+**Custom Exception:**
+- `InputValidationError` — Raised when user input fails validation
+
+**Validation Functions:**
+
+| Function | Validates |
+|----------|-----------|
+| `_validate_student_id()` | Length, allowed characters (alphanumeric, hyphens, dots, underscores) |
+| `_validate_name()` | Length, no special characters (`< > { } [ ] \| \`) |
+| `_validate_email()` | Length, must contain `@` and `.` |
+| `_validate_component_id_input()` | Non-empty, converts numeric strings to int, character validation |
+| `_validate_status_input()` | Must be one of valid statuses |
+| `_validate_search_term()` | Length limit enforced |
+
+**Input Safety:**
+- `_safe_input()` — Catches `EOFError` and `KeyboardInterrupt` gracefully
+- All `input()` calls wrapped to prevent crashes on Ctrl+D/Ctrl+C
+- Length limits prevent buffer overflow attacks
+- Character validation blocks injection attempts
+
+**Error Display:**
+- All errors shown in bordered error frames via `render_error()`
+- Tracking metrics count errors for debugging
+- Session expiry detected and handled automatically
+
+---
+
 ## Project Structure
 
 ```
@@ -265,8 +350,10 @@ Beginner/
 │   ├── auth.py               # Session management & gatekeepers
 │   ├── registry_core.py      # State transition logic & validation
 │   ├── storage.py            # JSON persistence layer
-│   └── cli_display.py        # Static terminal display & status highlights
+│   └── cli_display.py        # Terminal display & status highlights
+├── app.py                    # Main integrated application
 ├── manual_test.py            # Demo & testing script
+├── gear.json                 # Data persistence file (auto-created)
 ├── .gitignore
 └── README.md
 ```
@@ -296,6 +383,13 @@ git commit -m "Phase 4 Complete: Complete static terminal display views, ASCII l
 git push origin main
 ```
 
+**Phase 5:**
+```bash
+git add .
+git commit -m "Phase 5 Complete: Full project integration and final ship submission"
+git push origin main
+```
+
 ---
 
 ## Notes
@@ -305,7 +399,8 @@ git push origin main
 - **Ownership Model** — Users can only modify components they own
 - **State Enforcement** — Invalid status transitions are blocked at the registry level
 - **Data Safety** — Storage layer uses atomic writes with automatic backup/restore
-- **Input Validation** — All public functions validate parameters before execution
+- **Input Validation** — All user inputs validated with length limits and character checks
+- **Error Handling** — Graceful handling of EOF, KeyboardInterrupt, and all exceptions
 - **No External Dependencies** — Pure Python standard library implementation
 
 Warm regards,

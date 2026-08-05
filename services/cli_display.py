@@ -41,27 +41,8 @@ class RenderError(DisplayError):
 
 
 # ---------------------------------------------------------------------------
-# Hardcoded dummy data (mock properties, no live operational state)
+# Status color mapping
 # ---------------------------------------------------------------------------
-MOCK_COMPONENTS = [
-    {"id": 1, "name": "Arduino Uno", "owner": "Muhammad Affan", "status": "Available"},
-    {"id": 2, "name": "Raspberry Pi 4", "owner": "Ayesha Khan", "status": "Borrowed"},
-    {"id": 3, "name": "ESP32 Dev Kit", "owner": "Bilal Ahmed", "status": "Maintenance"},
-    {"id": 4, "name": "Servo Motor SG90", "owner": "Fatima Noor", "status": "Available"},
-    {"id": 5, "name": "Breadboard 830", "owner": "Ali Raza", "status": "Retired"},
-    {"id": 6, "name": "Jumper Wires Kit", "owner": "Muhammad Affan", "status": "Borrowed"},
-    {"id": 7, "name": "Battery 9V", "owner": "Ayesha Khan", "status": "Available"},
-]
-
-MOCK_MENU = [
-    "1. View All Components",
-    "2. Borrow Component",
-    "3. Return Component",
-    "4. Search Components",
-    "5. Storage Status",
-    "6. Exit",
-]
-
 STATUS_STYLES = {
     "Available": BRIGHT_GREEN,
     "Borrowed": BRIGHT_RED,
@@ -407,17 +388,17 @@ def colorize_status(status):
     return f"{color}[{status}]{RESET}"
 
 
-def render_status_ledger(components=None, summary=True):
+def render_status_ledger(components, summary=True):
     """Loop over components printing color-coded status tags.
 
-    Defaults to the hardcoded MOCK_COMPONENTS array. Each row reuses the
-    colored [Available]/[Borrowed] highlighters.
+    Each row reuses the colored [Available]/[Borrowed] highlighters.
 
     Raises:
-        DisplayValidationError: if components are malformed.
+        DisplayValidationError: if components are malformed or empty.
     """
-    items = MOCK_COMPONENTS if components is None else components
-    items = _validate_components(items)
+    if components is None:
+        raise DisplayValidationError("Components list cannot be None")
+    items = _validate_components(components)
     summary = _validate_bool_flag(summary, "Summary")
     widths = [3, 18, 16, 16]
 
@@ -459,16 +440,15 @@ def render_status_ledger(components=None, summary=True):
 # ---------------------------------------------------------------------------
 # High-level static screens
 # ---------------------------------------------------------------------------
-def render_components_table(components=None):
+def render_components_table(components):
     """Render a full grid table of the component inventory.
 
-    Defaults to the hardcoded MOCK_COMPONENTS array.
-
     Raises:
-        DisplayValidationError: if components are malformed.
+        DisplayValidationError: if components are malformed or empty.
     """
-    items = MOCK_COMPONENTS if components is None else components
-    items = _validate_components(items)
+    if components is None:
+        raise DisplayValidationError("Components list cannot be None")
+    items = _validate_components(components)
     headers = ["ID", "Name", "Owner", "Status"]
     rows = [
         [comp["id"], comp["name"], comp["owner"], colorize_status(comp["status"])]
@@ -477,8 +457,8 @@ def render_components_table(components=None):
     return render_table(headers, rows)
 
 
-def render_dashboard():
-    """Compose the full static terminal dashboard from the mock data.
+def render_dashboard(components, menu_options):
+    """Compose the full static terminal dashboard from dynamic data.
 
     Raises:
         RenderError: if any sub-screen fails to build.
@@ -487,23 +467,23 @@ def render_dashboard():
         lines = []
         lines.append(render_title_banner("HARDWARE INVENTORY SYSTEM"))
         lines.append("")
-        lines.append(render_menu("MAIN MENU", MOCK_MENU))
+        lines.append(render_menu("MAIN MENU", menu_options))
         lines.append("")
-        lines.append(render_components_table())
+        lines.append(render_components_table(components))
         return "\n".join(lines)
     except DisplayError as e:
         raise RenderError(f"Failed to render dashboard: {e}") from e
 
 
-def show_home_screen():
-    """Clear the console and display the complete static home screen.
+def show_home_screen(components, menu_options):
+    """Clear the console and display the complete home screen with dynamic data.
 
     Rendering failures are captured and shown inside an error frame rather
     than crashing the terminal session.
     """
     clear_screen()
     try:
-        sys.stdout.write(render_dashboard() + "\n")
+        sys.stdout.write(render_dashboard(components, menu_options) + "\n")
     except DisplayError as e:
         sys.stdout.write(render_error(str(e)) + "\n")
     except Exception as e:
@@ -513,4 +493,9 @@ def show_home_screen():
 
 
 if __name__ == "__main__":
-    show_home_screen()
+    demo_components = [
+        {"id": 1, "name": "Arduino Uno", "owner": "Demo User", "status": "Available"},
+        {"id": 2, "name": "Raspberry Pi 4", "owner": "Demo User", "status": "Borrowed"},
+    ]
+    demo_menu = ["1. View All Components", "2. Exit"]
+    show_home_screen(demo_components, demo_menu)
